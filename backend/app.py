@@ -1,6 +1,6 @@
 import requests, os, json
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from app_time import *
 
 # Load variables from .env file
@@ -24,24 +24,22 @@ def setCredentials(client_id, client_secret):
     os.environ["SPOTIFY_ACCESS_TOKEN"] = response.json()['access_token']
     os.environ["SPOTIFY_TOKEN_TYPE"] = response.json()['token_type']
     os.environ["SPOTIFY_EXPIRES_IN"] = str(response.json()['expires_in'])
-
     timestamp = datetime.now()
     expiry = timestamp + timedelta(seconds=int(os.getenv("SPOTIFY_EXPIRES_IN")))
     os.environ["SPOTIFY_ACCESS_TOKEN_ISSUED_TIME"] = timeToString(timestamp)
     os.environ["SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME"] = timeToString(expiry)
 
-    with open(".env", "w") as env_file:
-        env_file.write(f"SPOTIFY_ACCESS_TOKEN={os.environ['SPOTIFY_ACCESS_TOKEN']}\n")
-        env_file.write(f"SPOTIFY_TOKEN_TYPE={os.environ['SPOTIFY_TOKEN_TYPE']}\n")
-        env_file.write(f"SPOTIFY_EXPIRES_IN={os.environ['SPOTIFY_EXPIRES_IN']}\n")
-        env_file.write(f"SPOTIFY_ACCESS_TOKEN_ISSUED_TIME={os.environ['SPOTIFY_ACCESS_TOKEN_ISSUED_TIME']}\n")
-        env_file.write(f"SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME={os.environ['SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME']}\n")
+    envPath = ".env"
+    set_key(envPath, "SPOTIFY_ACCESS_TOKEN", os.environ['SPOTIFY_ACCESS_TOKEN'])
+    set_key(envPath, "SPOTIFY_TOKEN_TYPE", os.environ['SPOTIFY_TOKEN_TYPE'])
+    set_key(envPath, "SPOTIFY_EXPIRES_IN", os.environ['SPOTIFY_EXPIRES_IN'])
+    set_key(envPath, "SPOTIFY_ACCESS_TOKEN_ISSUED_TIME", os.environ['SPOTIFY_ACCESS_TOKEN_ISSUED_TIME'])
+    set_key(envPath, "SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME", os.environ['SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME'])
 
 # Checks if the access token is expired, return True if expired False if not
 def checkExpiry():
-    # time = datetime.now()
-    time = stringToTime("2025-03-04 20:02:06")
-    print(f'Current Time : {time}')
+    time = datetime.now()
+    # print(f'Current Time : {time}')
     timestamp = stringToTime(os.getenv("SPOTIFY_ACCESS_TOKEN_ISSUED_TIME"))
     expiry = stringToTime(os.getenv("SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME"))
 
@@ -67,7 +65,7 @@ def printCredentials():
 if checkExpiry():
     print("Expire? True")
     setCredentials(CLIENT_ID,CLIENT_SECRET)
-    printCredentials()
+    # printCredentials()
 else:
     print("Expire? False")
-    printCredentials()
+    # printCredentials()
