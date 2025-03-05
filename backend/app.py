@@ -37,11 +37,12 @@ def setCredentials(client_id, client_secret):
     set_key(envPath, "SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME", os.environ['SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME'])
 
 # Checks if the access token is expired, return True if expired False if not
-def checkExpiry():
+def checkToken():
     time = datetime.now()
-    # print(f'Current Time : {time}')
     timestamp = stringToTime(os.getenv("SPOTIFY_ACCESS_TOKEN_ISSUED_TIME"))
     expiry = stringToTime(os.getenv("SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME"))
+
+    print(f'Current Time : {time} Expiry : {expiry}')
 
     # If timestamp has a false value in primitive data type
     if not timestamp:
@@ -55,17 +56,37 @@ def checkExpiry():
         else:
             return "!Timestamp Error"
 
+# Prints info from .env
 def printCredentials():
-    print(f'SPOTIFY_ACCESS_TOKEN : {os.getenv("SPOTIFY_ACCESS_TOKEN")}')
+    # print(f'SPOTIFY_ACCESS_TOKEN : {os.getenv("SPOTIFY_ACCESS_TOKEN")}')
     print(f'SPOTIFY_TOKEN_TYPE : {os.getenv("SPOTIFY_TOKEN_TYPE")}')
     print(f'SPOTIFY_EXPIRES_IN : {os.getenv("SPOTIFY_EXPIRES_IN")}')
     print(f'SPOTIFY_ACCESS_TOKEN_ISSUED_TIME : {os.getenv("SPOTIFY_ACCESS_TOKEN_ISSUED_TIME")}')
     print(f'SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME : {os.getenv("SPOTIFY_ACCESS_TOKEN_EXPIRY_TIME")}')
 
-if checkExpiry():
-    print("Expire? True")
-    setCredentials(CLIENT_ID,CLIENT_SECRET)
-    # printCredentials()
-else:
-    print("Expire? False")
-    # printCredentials()
+# Check if Access token is expired
+def checkExpiry():
+    if checkToken():
+        print("Expire? True")
+        setCredentials(CLIENT_ID,CLIENT_SECRET)
+        printCredentials()
+    else:
+        print("Expire? False")
+        printCredentials()
+
+# My Vintage playlist id 2B0iG1FB3actAReltYQ30E?si=9225a68a35314163
+# Half Life id 1EfDGN0rcNAjxwvz0REjVV?si=ec4cffc308dc4e7f
+# Function to fetch tracks from the playlist
+def getPlaylist(playlist_id, access_token):
+    url = f"https://api.spotify.com/v1/playlists/{playlist_id}"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    
+    response = requests.get(url, headers=headers)
+    playlist_data = response.json()
+    
+    return playlist_data
+
+id = "1EfDGN0rcNAjxwvz0REjVV?si=ec4cffc308dc4e7f"
+checkExpiry()
+token = os.getenv("SPOTIFY_ACCESS_TOKEN")
+print(getPlaylist(id,token))
